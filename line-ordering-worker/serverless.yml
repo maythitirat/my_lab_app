@@ -1,0 +1,64 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Serverless Framework v3 — LINE Ordering Worker on AWS Lambda + API Gateway
+# Deploy: sls deploy --stage prod
+# Local:  sls offline start --stage dev
+# ─────────────────────────────────────────────────────────────────────────────
+
+service: line-ordering-worker
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ap-southeast-1
+  stage: ${opt:stage, 'prod'}
+  memorySize: 256
+  timeout: 10
+  logRetentionInDays: 7
+
+  environment:
+    NODE_ENV: production
+    # LINE Messaging API
+    LINE_CHANNEL_SECRET: ${env:LINE_CHANNEL_SECRET}
+    LINE_CHANNEL_ACCESS_TOKEN: ${env:LINE_CHANNEL_ACCESS_TOKEN}
+    # LINE User/Group IDs to notify
+    LINE_ADMIN_USER_ID: ${env:LINE_ADMIN_USER_ID}
+    LINE_ADMIN_GROUP_ID: ${env:LINE_ADMIN_GROUP_ID, ''}
+    # Shared secret to validate calls from backend
+    WORKER_SECRET: ${env:WORKER_SECRET}
+    # Backend URL (for status update callbacks)
+    BACKEND_URL: ${env:BACKEND_URL}
+    ALLOWED_ORIGIN: ${env:ALLOWED_ORIGIN}
+
+  httpApi:
+    cors:
+      allowedOrigins:
+        - ${env:ALLOWED_ORIGIN}
+      allowedMethods:
+        - GET
+        - POST
+        - OPTIONS
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+        - X-Worker-Secret
+      maxAge: 86400
+
+functions:
+  api:
+    handler: dist/lambda.handler
+    events:
+      - httpApi:
+          path: /{proxy+}
+          method: ANY
+      - httpApi:
+          path: /
+          method: ANY
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3002
+    noPrependStageInUrl: true
