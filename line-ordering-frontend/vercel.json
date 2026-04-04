@@ -17,7 +17,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.line-scdn.net; connect-src 'self' https://api.line.me https://access.line.me https://*.execute-api.ap-southeast-1.amazonaws.com; img-src 'self' data: https: blob:; style-src 'self' 'unsafe-inline'; font-src 'self';"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.line-scdn.net https://liffsdk.line-scdn.net; connect-src 'self' https://api.line.me https://access.line.me https://liffsdk.line-scdn.net https://*.line-scdn.net https://*.execute-api.ap-southeast-1.amazonaws.com; img-src 'self' data: https: blob:; style-src 'self' 'unsafe-inline'; font-src 'self';"
         }
       ]
     }
