@@ -1,0 +1,14 @@
+# Ignore everything at the root level...
+*
+
+# ...except the line-ordering project folders
+!line-ordering-frontend/
+!line-ordering-backend/
+!.gitignore
+
+# Also ignore common build/dependency dirs inside any subfolder
+**/node_modules/
+**/.next/
+**/dist/
+**/build/
+**/.env
