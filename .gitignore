@@ -1,12 +1,15 @@
-# Ignore everything at the root level...
-*
+# Ignore unrelated projects in this workspace
+docker-compose.yml
+flutter_web_app/
+my-app-backend-nest/
+my-app-next15/
+my-app/
+my_flutter_app2/
+nestjs-docker-gcr-example/
+nett-project/
+serverless-backend/
 
-# ...except the line-ordering project folders
-!line-ordering-frontend/
-!line-ordering-backend/
-!.gitignore
-
-# Also ignore common build/dependency dirs inside any subfolder
+# Common build/dependency dirs
 **/node_modules/
 **/.next/
 **/dist/
