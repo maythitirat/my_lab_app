@@ -1,0 +1,59 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Serverless Framework v3 — LINE Ordering Backend on AWS Lambda + API Gateway
+# Deploy: sls deploy --stage prod
+# Local:  sls offline start --stage dev
+# ─────────────────────────────────────────────────────────────────────────────
+
+service: line-ordering-backend
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ap-southeast-1    # Singapore — closest to Thailand for LINE users
+  stage: ${opt:stage, 'prod'}
+  memorySize: 256            # 256 MB is sufficient for NestJS; keeps cost near zero
+  timeout: 10                # seconds
+  logRetentionInDays: 7
+
+  # Environment variables — these are encrypted at rest by Lambda
+  # Set real values with:  sls deploy --param="DATABASE_URL=postgresql://..."
+  # Or export them before running deploy.
+  environment:
+    NODE_ENV: production
+    DATABASE_URL: ${env:DATABASE_URL}
+    ALLOWED_ORIGIN: ${env:ALLOWED_ORIGIN}
+
+  # HTTP API (API Gateway v2) — cheaper than REST API and has built-in CORS
+  httpApi:
+    cors:
+      allowedOrigins:
+        - ${env:ALLOWED_ORIGIN}
+      allowedMethods:
+        - GET
+        - POST
+        - OPTIONS
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+      maxAge: 86400   # 1-day preflight cache
+
+functions:
+  api:
+    handler: dist/lambda.handler   # compiled by `nest build`
+    events:
+      # Catch-all proxy — forwards every path/method to NestJS router
+      - httpApi:
+          path: /{proxy+}
+          method: ANY
+      - httpApi:
+          path: /
+          method: ANY
+
+plugins:
+  - serverless-offline   # local Lambda emulation
+
+custom:
+  serverless-offline:
+    httpPort: 3001
+    noPrependStageInUrl: true
