@@ -23,6 +23,8 @@ provider:
     NODE_ENV: production
     DATABASE_URL: ${env:DATABASE_URL}
     ALLOWED_ORIGIN: ${env:ALLOWED_ORIGIN}
+    WORKER_URL: ${env:WORKER_URL, ''}
+    WORKER_SECRET: ${env:WORKER_SECRET, ''}
 
   # HTTP API (API Gateway v2) — cheaper than REST API and has built-in CORS
   httpApi:
