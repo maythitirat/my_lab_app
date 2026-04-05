@@ -15,3 +15,5 @@ serverless-backend/
 **/dist/
 **/build/
 **/.env
+**/.serverless/
+.vercel

@@ -9,6 +9,7 @@ import {
   IsPositive,
   ArrayMinSize,
   IsOptional,
+  IsIn,
   Length,
   Matches,
 } from 'class-validator';
@@ -93,6 +94,11 @@ export class CreateOrderDto {
   @IsNumber()
   @IsPositive()
   totalPrice: number;
+
+  /** Payment method: 'cod' (เก็บเงินปลายทาง) or 'transfer' (โอนจ่าย) */
+  @IsString()
+  @IsIn(['cod', 'transfer'])
+  paymentMethod: string;
 
   @IsArray()
   @ArrayMinSize(1)

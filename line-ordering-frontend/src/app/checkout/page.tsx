@@ -21,6 +21,7 @@ interface FormData {
   district: string;      // เขต / อำเภอ
   province: string;      // จังหวัด
   postalCode: string;    // รหัสไปรษณีย์
+  paymentMethod: 'cod' | 'transfer';
 }
 
 interface FormErrors {
@@ -193,10 +194,12 @@ export default function CheckoutPage() {
     district: '',
     province: '',
     postalCode: '',
+    paymentMethod: 'cod',
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [createdOrderId, setCreatedOrderId] = useState<number | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Photo state: File object + local preview URL
@@ -379,7 +382,7 @@ export default function CheckoutPage() {
         .filter(Boolean)
         .join(' ');
 
-      await createOrder({
+      const saved = await createOrder({
         lineUserId: profile.userId,
         name: formData.name.trim(),
         phone: formData.phone.trim(),
@@ -394,6 +397,7 @@ export default function CheckoutPage() {
         addressPhotoUrl,
         phonePhotoUrl,
         totalPrice,
+        paymentMethod: formData.paymentMethod,
         items: cart.map((item) => ({
           productId: item.product.id,
           productName: item.product.name,
@@ -403,6 +407,7 @@ export default function CheckoutPage() {
       });
 
       clearCart();
+      setCreatedOrderId(saved?.id ?? null);
       setIsSuccess(true);
     } catch (err) {
       setSubmitError(
@@ -418,7 +423,7 @@ export default function CheckoutPage() {
   // ─────────────────────────────────────────────────────────────────────────────
   if (isSuccess) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-6">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-6 py-10">
         <div className="bg-white rounded-3xl shadow-sm p-8 w-full max-w-sm text-center">
           <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-5">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-line-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -432,6 +437,48 @@ export default function CheckoutPage() {
           <p className="text-gray-400 text-xs mb-6">
             คำสั่งซื้อของคุณได้รับการบันทึกแล้ว รอการยืนยันจากร้านค้าสักครู่
           </p>
+
+          {/* Transfer payment info */}
+          {formData.paymentMethod === 'transfer' && (
+            <div className="mb-6 text-left bg-green-50 border border-green-200 rounded-2xl p-4">
+              <p className="text-xs font-bold text-green-800 mb-3 text-center">💳 ข้อมูลการชำระเงิน</p>
+              <p className="text-xs text-red-600 font-semibold text-center mb-3">
+                ❌ ไม่รับการชำระเงินจาก TrueMoney ❌
+              </p>
+              <div className="bg-white rounded-xl p-3 mb-3 space-y-1.5">
+                <p className="text-xs font-bold text-green-700 text-center">💚 ธนาคาร กสิกรไทย (KBank)</p>
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-500">เลขบัญชี</span>
+                  <span className="font-bold text-gray-800">172-1-07458-3</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-500">ชื่อบัญชี</span>
+                  <span className="font-bold text-gray-800">วรพล อุทัยธรรม</span>
+                </div>
+              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/qr-payment.png"
+                alt="QR Code สำหรับโอนจ่าย"
+                className="mx-auto w-48 h-48 rounded-xl border border-green-200"
+              />
+              <p className="mt-3 text-[10px] text-green-700 text-center">
+                ✅ หลังโอนจ่ายแล้ว รบกวนส่งสลิป พร้อมชื่อ ที่อยู่ และเบอร์ติดต่อ ให้แอดมินด้วยค่ะ
+              </p>
+              {createdOrderId && (
+                <a
+                  href={`/upload-slip/${createdOrderId}`}
+                  className="mt-3 w-full flex items-center justify-center gap-2 bg-green-700 text-white py-2.5 rounded-2xl font-bold text-sm hover:bg-green-800 active:scale-95 transition-all"
+                >
+                  📤 อัปโหลดสลิปโอนเงิน
+                </a>
+              )}
+              <p className="mt-2 text-[10px] text-gray-400 text-center">
+                (ระบบได้ส่งข้อมูลการชำระเงินให้ท่านทาง LINE แล้วเช่นกัน)
+              </p>
+            </div>
+          )}
+
           <button
             onClick={closeLiff}
             className="w-full bg-line-green text-white py-3.5 rounded-2xl font-bold hover:bg-line-dark active:scale-95 transition-all"
@@ -673,6 +720,44 @@ export default function CheckoutPage() {
             onFile={(f) => handlePhotoFile('address', f)}
             error={errors.addressPhoto}
           />
+        </div>
+
+        {/* ── Payment method ──────────────────────────────────────────────── */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+          <h2 className="text-sm font-bold text-gray-700 mb-3">วิธีชำระเงิน</h2>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setFormData((prev) => ({ ...prev, paymentMethod: 'cod' }))}
+              className={`flex flex-col items-center gap-2 py-4 px-3 rounded-2xl border-2 transition-all ${
+                formData.paymentMethod === 'cod'
+                  ? 'border-line-green bg-green-50 text-line-green'
+                  : 'border-gray-200 bg-white text-gray-500'
+              }`}
+            >
+              <span className="text-2xl">🚚</span>
+              <span className="text-xs font-bold">เก็บเงินปลายทาง</span>
+              <span className="text-[10px] text-gray-400">COD</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setFormData((prev) => ({ ...prev, paymentMethod: 'transfer' }))}
+              className={`flex flex-col items-center gap-2 py-4 px-3 rounded-2xl border-2 transition-all ${
+                formData.paymentMethod === 'transfer'
+                  ? 'border-green-700 bg-green-50 text-green-700'
+                  : 'border-gray-200 bg-white text-gray-500'
+              }`}
+            >
+              <span className="text-2xl">💚</span>
+              <span className="text-xs font-bold">โอนจ่าย</span>
+              <span className="text-[10px] text-gray-400">Bank Transfer</span>
+            </button>
+          </div>
+          {formData.paymentMethod === 'transfer' && (
+            <p className="mt-3 text-xs text-green-700 bg-green-50 rounded-xl px-3 py-2">
+              หลังสั่งซื้อ ระบบจะส่งข้อมูลธนาคารและ QR Code ให้ทาง LINE ค่ะ
+            </p>
+          )}
         </div>
 
         {/* API error */}

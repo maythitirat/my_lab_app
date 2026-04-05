@@ -71,6 +71,10 @@ export class Order {
   })
   totalPrice: number;
 
+  /** 'cod' = เก็บเงินปลายทาง  |  'transfer' = โอนจ่าย */
+  @Column({ name: 'payment_method', default: 'cod' })
+  paymentMethod: string;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

@@ -8,9 +8,10 @@ interface HeaderProps {
   title: string;
   showBack?: boolean;
   backHref?: string;
+  onBack?: () => void;
 }
 
-export default function Header({ title, showBack = false, backHref = '/' }: HeaderProps) {
+export default function Header({ title, showBack = false, backHref = '/', onBack }: HeaderProps) {
   const { totalItems } = useCart();
   const { profile } = useLiff();
 
@@ -20,15 +21,28 @@ export default function Header({ title, showBack = false, backHref = '/' }: Head
         {/* Left side */}
         <div className="flex items-center gap-2">
           {showBack && (
-            <Link
-              href={backHref}
-              className="p-1 -ml-1 rounded-full hover:bg-white/20 transition-colors"
-              aria-label="Go back"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </Link>
+            onBack ? (
+              <button
+                type="button"
+                onClick={onBack}
+                className="p-1 -ml-1 rounded-full hover:bg-white/20 transition-colors"
+                aria-label="Go back"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+            ) : (
+              <Link
+                href={backHref}
+                className="p-1 -ml-1 rounded-full hover:bg-white/20 transition-colors"
+                aria-label="Go back"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </Link>
+            )
           )}
           <h1 className="text-lg font-bold tracking-tight">{title}</h1>
         </div>

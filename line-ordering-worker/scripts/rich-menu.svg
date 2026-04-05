@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="2500" height="843" viewBox="0 0 2500 843" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgLeft"  x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#0A1628"/>
+      <stop offset="100%" stop-color="#0F2240"/>
+    </linearGradient>
+    <linearGradient id="bgRight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#0D1F0A"/>
+      <stop offset="100%" stop-color="#142B10"/>
+    </linearGradient>
+    <linearGradient id="accentBlue" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#0EA5E9"/>
+      <stop offset="100%" stop-color="#22D3EE"/>
+    </linearGradient>
+    <linearGradient id="accentGreen" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#16A34A"/>
+      <stop offset="100%" stop-color="#22C55E"/>
+    </linearGradient>
+    <linearGradient id="btnBlue"  x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#0284C7"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+    <linearGradient id="btnGreen" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#15803D"/>
+      <stop offset="100%" stop-color="#22C55E"/>
+    </linearGradient>
+    <linearGradient id="shimmer" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#FFFFFF" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glowBlue"  x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="20" flood-color="#0EA5E9" flood-opacity="0.45"/>
+    </filter>
+    <filter id="glowGreen" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="20" flood-color="#22C55E" flood-opacity="0.45"/>
+    </filter>
+    <filter id="btnShadowBlue" x="-10%" y="-15%" width="120%" height="150%">
+      <feDropShadow dx="0" dy="6" stdDeviation="16" flood-color="#0EA5E9" flood-opacity="0.45"/>
+    </filter>
+    <filter id="btnShadowGreen" x="-10%" y="-15%" width="120%" height="150%">
+      <feDropShadow dx="0" dy="6" stdDeviation="16" flood-color="#22C55E" flood-opacity="0.45"/>
+    </filter>
+    <filter id="textGlow" x="-5%" y="-10%" width="110%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#000" flood-opacity="0.6"/>
+    </filter>
+    <radialGradient id="radialBlue"  cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#0EA5E9" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#0EA5E9" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="radialGreen" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#22C55E" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#22C55E" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- LEFT PANEL: สั่งสินค้า -->
+  <rect x="0" y="0" width="1250" height="843" fill="url(#bgLeft)"/>
+  <ellipse cx="300" cy="421" rx="500" ry="380" fill="url(#radialBlue)"/>
+  <rect x="0" y="0" width="1250" height="8" fill="url(#accentBlue)"/>
+
+  <!-- Cart icon -->
+  <g transform="translate(200, 80)" filter="url(#glowBlue)">
+    <path d="M0 0 Q5 0 12 10 L40 100" fill="none" stroke="#22D3EE" stroke-width="10" stroke-linecap="round"/>
+    <path d="M40 100 L240 100 L210 220 L70 220 Z" fill="#0EA5E9" opacity="0.18"/>
+    <path d="M40 100 L240 100 L210 220 L70 220 Z" fill="none" stroke="#22D3EE" stroke-width="9" stroke-linejoin="round"/>
+    <rect x="82"  y="114" width="36" height="90" rx="6" fill="#22D3EE" opacity="0.65"/>
+    <rect x="132" y="106" width="36" height="98" rx="6" fill="#0EA5E9" opacity="0.65"/>
+    <rect x="182" y="118" width="36" height="84" rx="6" fill="#38BDF8" opacity="0.65"/>
+    <circle cx="88"  cy="252" r="26" fill="#0284C7" stroke="#22D3EE" stroke-width="6"/>
+    <circle cx="88"  cy="252" r="10" fill="#22D3EE"/>
+    <circle cx="195" cy="252" r="26" fill="#0284C7" stroke="#22D3EE" stroke-width="6"/>
+    <circle cx="195" cy="252" r="10" fill="#22D3EE"/>
+  </g>
+
+  <text x="625" y="545"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="118" font-weight="900"
+    fill="#F0F9FF" text-anchor="middle"
+    filter="url(#textGlow)">&#x0E2A;&#x0E31;&#x0E48;&#x0E07;&#x0E2A;&#x0E34;&#x0E19;&#x0E04;&#x0E49;&#x0E32;</text>
+
+  <rect x="90" y="608" width="1070" height="120" rx="60"
+    fill="url(#btnBlue)" filter="url(#btnShadowBlue)"/>
+  <rect x="90" y="608" width="1070" height="60" rx="60" fill="url(#shimmer)"/>
+  <text x="625" y="684"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="56" font-weight="800"
+    fill="#FFFFFF" text-anchor="middle">&#x0E01;&#x0E14;&#x0E40;&#x0E1E;&#x0E37;&#x0E48;&#x0E2D;&#x0E2A;&#x0E31;&#x0E48;&#x0E07;&#x0E0B;&#x0E37;&#x0E49;&#x0E2D;  &#x203A;</text>
+
+  <!-- Divider -->
+  <line x1="1250" y1="50" x2="1250" y2="793"
+    stroke="#2D3F55" stroke-width="3" stroke-dasharray="14,9" opacity="0.7"/>
+  <circle cx="1250" cy="421" r="20" fill="#1E293B"/>
+  <circle cx="1250" cy="421" r="9"  fill="#475569"/>
+
+  <!-- RIGHT PANEL: แก้ไขออเดอร์ -->
+  <rect x="1250" y="0" width="1250" height="843" fill="url(#bgRight)"/>
+  <ellipse cx="1950" cy="421" rx="500" ry="380" fill="url(#radialGreen)"/>
+  <rect x="1250" y="0" width="1250" height="8" fill="url(#accentGreen)"/>
+
+  <!-- Pencil + document icon -->
+  <g transform="translate(1390, 90)" filter="url(#glowGreen)">
+    <rect x="130" y="40" width="240" height="270" rx="18"
+      fill="#15803D" opacity="0.2"/>
+    <rect x="130" y="40" width="240" height="270" rx="18"
+      fill="none" stroke="#22C55E" stroke-width="7"/>
+    <line x1="162" y1="110" x2="338" y2="110" stroke="#4ADE80" stroke-width="8" stroke-linecap="round" opacity="0.8"/>
+    <line x1="162" y1="148" x2="300" y2="148" stroke="#4ADE80" stroke-width="8" stroke-linecap="round" opacity="0.6"/>
+    <line x1="162" y1="186" x2="280" y2="186" stroke="#4ADE80" stroke-width="8" stroke-linecap="round" opacity="0.5"/>
+    <line x1="162" y1="224" x2="310" y2="224" stroke="#4ADE80" stroke-width="8" stroke-linecap="round" opacity="0.4"/>
+    <!-- Pencil rotated -->
+    <g transform="rotate(35, 65, 195)">
+      <rect x="38" y="100" width="54" height="190" rx="10" fill="#16A34A" opacity="0.35"/>
+      <rect x="38" y="100" width="54" height="190" rx="10" fill="none" stroke="#22C55E" stroke-width="7"/>
+      <polygon points="38,290 92,290 65,340" fill="#22C55E"/>
+      <rect x="38" y="100" width="54" height="24" rx="10" fill="#4ADE80"/>
+    </g>
+  </g>
+
+  <text x="1875" y="510"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="96" font-weight="900"
+    fill="#F0FDF4" text-anchor="middle"
+    filter="url(#textGlow)">&#x0E41;&#x0E01;&#x0E49;&#x0E44;&#x0E02;&#x0E2D;&#x0E2D;&#x0E40;&#x0E14;&#x0E2D;&#x0E23;&#x0E4C;</text>
+
+  <text x="1875" y="578"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="40" font-weight="400"
+    fill="#86EFAC" text-anchor="middle">&#x0E41;&#x0E01;&#x0E49;&#x0E0A;&#x0E37;&#x0E48;&#x0E2D;  &#x2022;  &#x0E17;&#x0E35;&#x0E48;&#x0E2D;&#x0E22;&#x0E39;&#x0E48;  &#x2022;  &#x0E40;&#x0E1A;&#x0E2D;&#x0E23;&#x0E4C;&#x0E42;&#x0E17;&#x0E23;</text>
+
+  <rect x="1340" y="640" width="1070" height="120" rx="60"
+    fill="url(#btnGreen)" filter="url(#btnShadowGreen)"/>
+  <rect x="1340" y="640" width="1070" height="60" rx="60" fill="url(#shimmer)"/>
+  <text x="1875" y="716"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="56" font-weight="800"
+    fill="#FFFFFF" text-anchor="middle">&#x0E01;&#x0E14;&#x0E40;&#x0E1E;&#x0E37;&#x0E48;&#x0E2D;&#x0E41;&#x0E01;&#x0E49;&#x0E44;&#x0E02;  &#x203A;</text>
+</svg>

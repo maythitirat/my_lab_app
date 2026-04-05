@@ -19,6 +19,7 @@ export interface OrderPayload {
   addressPhotoUrl?: string | null;
   phonePhotoUrl?: string | null;
   totalPrice: number;
+  paymentMethod: string;
   status: string;
   createdAt: string;
   items: OrderItem[];

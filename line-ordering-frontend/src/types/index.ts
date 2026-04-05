@@ -49,6 +49,39 @@ export interface OrderPayload {
   /** Cloudflare / S3 URL of uploaded phone-card photo (optional) */
   phonePhotoUrl?: string;
   totalPrice: number;
+  /** 'cod' = เก็บเงินปลายทาง  |  'transfer' = โอนจ่าย */
+  paymentMethod: 'cod' | 'transfer';
+  items: OrderItem[];
+}
+
+/** Payload for PATCH /orders/:id — only contact & address fields, no items */
+export interface UpdateOrderPayload {
+  lineUserId: string;
+  name?: string;
+  phone?: string;
+  address?: string;
+  addressLine?: string;
+  subDistrict?: string;
+  district?: string;
+  province?: string;
+  postalCode?: string;
+}
+
+export interface Order {
+  id: number;
+  lineUserId: string;
+  name: string;
+  phone: string;
+  address: string;
+  addressLine: string;
+  subDistrict: string;
+  district: string;
+  province: string;
+  postalCode: string;
+  addressPhotoUrl: string | null;
+  phonePhotoUrl: string | null;
+  totalPrice: number;
+  createdAt: string;
   items: OrderItem[];
 }
 

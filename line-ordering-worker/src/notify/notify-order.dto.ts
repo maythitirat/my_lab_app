@@ -22,6 +22,7 @@ export class NotifyOrderDto {
   @IsOptional() @IsString() addressPhotoUrl?: string;
   @IsOptional() @IsString() phonePhotoUrl?: string;
   @IsNumber() @IsPositive() totalPrice: number;
+  @IsString() paymentMethod: string;
   @IsString() status: string;
   @IsString() createdAt: string;
   @IsArray() @ValidateNested({ each: true }) @Type(() => NotifyOrderItemDto) items: NotifyOrderItemDto[];

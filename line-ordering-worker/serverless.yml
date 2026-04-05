@@ -29,6 +29,10 @@ provider:
     # Backend URL (for status update callbacks)
     BACKEND_URL: ${env:BACKEND_URL}
     ALLOWED_ORIGIN: ${env:ALLOWED_ORIGIN}
+    # Payment QR code image (publicly accessible HTTPS URL)
+    PAYMENT_QR_IMAGE_URL: ${env:PAYMENT_QR_IMAGE_URL, 'https://line-ordering-frontend.vercel.app/qr-payment.png'}
+    # LIFF app ID (used for in-app deep links)
+    LIFF_ID: ${env:LIFF_ID, '2009692421-qzL3USNe'}
 
   httpApi:
     cors:
@@ -46,7 +50,7 @@ provider:
 
 functions:
   api:
-    handler: dist/lambda.handler
+    handler: dist/src/lambda.handler
     events:
       - httpApi:
           path: /{proxy+}
