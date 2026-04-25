@@ -40,4 +40,9 @@ export class UpdateOrderDto {
   @IsString()
   @Matches(/^\d{5}$/, { message: 'postalCode must be exactly 5 digits' })
   postalCode?: string;
+
+  /** Tracking number — admin only */
+  @IsOptional()
+  @IsString()
+  trackingNumber?: string;
 }

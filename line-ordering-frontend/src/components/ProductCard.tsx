@@ -18,7 +18,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Image */}
       <div className="relative aspect-square">
         <Image
-          src={product.image}
+          src={product.images?.[0]?.imageUrl ?? product.imageUrl ?? product.image ?? 'https://picsum.photos/seed/default/400/400'}
           alt={product.name}
           fill
           className="object-cover"

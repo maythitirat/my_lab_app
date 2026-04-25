@@ -1,16 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ProductCard from '@/components/ProductCard';
 import Header from '@/components/Header';
-import { products } from '@/data/products';
+import { getProducts } from '@/lib/api';
 import { useLiff } from '@/context/LiffContext';
-
-const CATEGORIES = ['All', ...Array.from(new Set(products.map((p) => p.category)))];
+import { Product } from '@/types';
 
 export default function HomePage() {
   const [activeCategory, setActiveCategory] = useState('All');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const { isReady, error, profile } = useLiff();
+
+  useEffect(() => {
+    if (!isReady) return;
+    getProducts()
+      .then(setProducts)
+      .catch(() => setProducts([]))
+      .finally(() => setLoadingProducts(false));
+  }, [isReady]);
+
+  const categories = ['All', ...Array.from(new Set(products.map((p) => p.category)))];
 
   const filtered =
     activeCategory === 'All'
@@ -56,7 +67,7 @@ export default function HomePage() {
       {/* Category filter */}
       <div className="sticky top-14 z-40 bg-white border-b border-gray-100 shadow-sm">
         <div className="flex gap-2 overflow-x-auto px-4 py-3 scrollbar-hide">
-          {CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
@@ -74,14 +85,22 @@ export default function HomePage() {
 
       {/* Product grid */}
       <div className="flex-1 p-4">
-        <p className="text-xs text-gray-400 mb-3">
-          {filtered.length} item{filtered.length !== 1 ? 's' : ''}
-        </p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {filtered.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {loadingProducts ? (
+          <div className="flex justify-center mt-16">
+            <span className="w-8 h-8 rounded-full border-4 border-line-green border-t-transparent animate-spin" />
+          </div>
+        ) : (
+          <>
+            <p className="text-xs text-gray-400 mb-3">
+              {filtered.length} รายการ
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {filtered.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

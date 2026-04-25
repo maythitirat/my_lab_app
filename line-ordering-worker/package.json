@@ -9,6 +9,7 @@
     "deploy:dev": "npm run build && sls deploy --stage dev",
     "sls:offline": "sls offline start --stage dev",
     "setup:rich-menu": "node scripts/setup-rich-menu.js",
+    "setup:checkin-rich-menu": "python3 scripts/gen-checkin-rich-menu.py && node scripts/setup-checkin-rich-menu.js",
     "update:rich-menu-image": "node scripts/generate-rich-menu-image.js"
   },
   "dependencies": {

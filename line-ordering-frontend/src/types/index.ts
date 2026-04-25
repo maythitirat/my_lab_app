@@ -1,9 +1,24 @@
+export interface ProductImage {
+  id: number;
+  productId: number;
+  imageUrl: string;
+  sortOrder: number;
+}
+
 export interface Product {
   id: number;
   name: string;
-  image: string;
+  /** Legacy static-data field */
+  image?: string;
+  /** API field from backend */
+  imageUrl?: string;
+  /** Multiple images from product_images table */
+  images?: ProductImage[];
   price: number;
   category: string;
+  description?: string;
+  isActive?: boolean;
+  sortOrder?: number;
 }
 
 export interface CartItem {
@@ -81,6 +96,10 @@ export interface Order {
   addressPhotoUrl: string | null;
   phonePhotoUrl: string | null;
   totalPrice: number;
+  paymentMethod: string;
+  /** 'pending' | 'confirmed' | 'cancelled' */
+  status: string;
+  trackingNumber: string | null;
   createdAt: string;
   items: OrderItem[];
 }
@@ -89,4 +108,24 @@ export interface LiffProfile {
   userId: string;
   displayName: string;
   pictureUrl?: string;
+}
+
+export interface Customer {
+  id: number;
+  lineUserId: string | null;
+  phone: string;
+  name: string | null;
+  lineDisplayName: string | null;
+  note: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LineFollower {
+  id: number;
+  lineUserId: string;
+  displayName: string | null;
+  pictureUrl: string | null;
+  lastSeenAt: string;
+  createdAt: string;
 }

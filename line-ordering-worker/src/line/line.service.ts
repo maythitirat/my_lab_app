@@ -6,6 +6,7 @@ import { buildAdminOrderFlex } from './flex/admin-order.flex';
 import { buildUserConfirmFlex } from './flex/user-confirm.flex';
 import { buildPaymentTransferMessages, buildSlipReminderMessages } from './flex/payment-transfer.flex';
 import { buildAdminReportFlex, ReportData } from './flex/admin-report.flex';
+import { buildAdminCancelFlex, CancelPayload } from './flex/admin-cancel.flex';
 
 @Injectable()
 export class LineService {
@@ -186,7 +187,7 @@ export class LineService {
           contents: [
             {
               type: 'text',
-              text: '💡 วิธีขอรายงานวันอื่น',
+              text: '💡 คำสั่งที่ใช้ได้',
               weight: 'bold',
               size: 'md',
               color: '#FFFFFF',
@@ -209,11 +210,10 @@ export class LineService {
             { type: 'separator', margin: 'sm' },
             ...[
               ['รายงาน', 'รอบปัจจุบัน'],
-              ['รายงานวันนี้', 'รอบปัจจุบัน'],
               ['รายงาน 6/4', 'วันที่ 6 เม.ย. (ปีนี้)'],
               ['รายงาน 6/4/26', 'วันที่ 6 เม.ย. 2026'],
-              ['รายงาน 6/4/2026', 'วันที่ 6 เม.ย. 2026'],
-              ['รายงาน 2026-04-06', 'รูปแบบ ISO'],
+              ['ส่งออก', 'ดาวน์โหลด CSV รอบนี้'],
+              ['ส่งออก 6/4', 'ดาวน์โหลด CSV วันที่ 6/4'],
             ].map(([cmd, desc]) => ({
               type: 'box' as const,
               layout: 'horizontal' as const,
@@ -249,5 +249,137 @@ export class LineService {
         this.logger.error(`Failed to send report+hint to ${to}: ${err.message}`);
       });
     this.logger.log(`Report+hint sent to ${to} (${data.totalOrders} orders, ${data.periodLabel})`);
+  }
+
+  /** Push a CSV download link Flex Message to the admin. */
+  async sendExportLink(to: string, csvUrl: string, labelDate?: string): Promise<void> {
+    const dateLabel = labelDate ?? 'รอบปัจจุบัน';
+    const msg: messagingApi.Message = {
+      type: 'flex',
+      altText: `📥 ดาวน์โหลดรายงาน CSV — ${dateLabel}`,
+      contents: {
+        type: 'bubble',
+        size: 'kilo',
+        header: {
+          type: 'box',
+          layout: 'vertical',
+          backgroundColor: '#1565C0',
+          paddingAll: '14px',
+          contents: [
+            {
+              type: 'text',
+              text: '📥 ดาวน์โหลดรายงาน CSV',
+              weight: 'bold',
+              size: 'md',
+              color: '#FFFFFF',
+            },
+            {
+              type: 'text',
+              text: dateLabel,
+              size: 'xs',
+              color: '#BBDEFB',
+              margin: 'xs',
+            },
+          ],
+        },
+        body: {
+          type: 'box',
+          layout: 'vertical',
+          paddingAll: '14px',
+          contents: [
+            {
+              type: 'text',
+              text: '6 คอลัมน์: ชื่อ | เบอร์ | ที่อยู่ | แขวง/เขต/จังหวัด/รหัส | ชื่อสินค้า | ราคา',
+              size: 'xs',
+              color: '#666666',
+              wrap: true,
+            },
+            {
+              type: 'text',
+              text: '1 แถว ต่อ 1 รายการสินค้า (expand rows)',
+              size: 'xs',
+              color: '#999999',
+              margin: 'sm',
+              wrap: true,
+            },
+          ],
+        },
+        footer: {
+          type: 'box',
+          layout: 'vertical',
+          paddingAll: '12px',
+          contents: [
+            {
+              type: 'button',
+              style: 'primary',
+              color: '#1565C0',
+              action: {
+                type: 'uri',
+                label: 'เปิดไฟล์ CSV',
+                uri: csvUrl,
+              },
+            },
+          ],
+        },
+      } as unknown as messagingApi.FlexContainer,
+    } as messagingApi.FlexMessage;
+
+    await this.client
+      .pushMessage({ to, messages: [msg] })
+      .catch((err) => {
+        this.logger.error(`Failed to send export link to ${to}: ${err.message}`);
+      });
+    this.logger.log(`Export link sent to ${to}: ${csvUrl}`);
+  }
+
+  /** Notify admin when an order is cancelled by the customer. */
+  async notifyAdminCancel(order: CancelPayload): Promise<void> {
+    const adminUserId = this.config.get<string>('LINE_ADMIN_USER_ID');
+    const adminGroupId = this.config.get<string>('LINE_ADMIN_GROUP_ID');
+
+    const targets: string[] = [];
+    if (adminGroupId) targets.push(adminGroupId);
+    else if (adminUserId) targets.push(adminUserId);
+
+    if (targets.length === 0) {
+      this.logger.warn('No admin target configured for cancel notification');
+      return;
+    }
+
+    const flex = buildAdminCancelFlex(order);
+    await Promise.all(
+      targets.map((to) =>
+        this.client
+          .pushMessage({ to, messages: [flex as unknown as messagingApi.Message] })
+          .catch((err) => {
+            this.logger.error(`Failed to push cancel notification to ${to}: ${err.message}`);
+          }),
+      ),
+    );
+    this.logger.log(`Admin notified of cancellation for order #${order.id}`);
+  }
+
+  /** Reply with a plain text message using a replyToken */
+  async replyText(replyToken: string, message: string): Promise<void> {
+    await this.client.replyMessage({
+      replyToken,
+      messages: [{ type: 'text', text: message }],
+    }).catch((err) => {
+      this.logger.error(`Failed to reply text: ${err.message}`);
+    });
+  }
+
+  /** Send a plain text message to any LINE user */
+  async pushText(lineUserId: string, message: string): Promise<void> {
+    await this.client
+      .pushMessage({
+        to: lineUserId,
+        messages: [{ type: 'text', text: message }],
+      })
+      .catch((err) => {
+        this.logger.error(`Failed to push text to ${lineUserId}: ${err.message} | body: ${JSON.stringify(err.body ?? err.originalError ?? {})}`);
+        throw err;
+      });
+    this.logger.log(`Text message pushed to ${lineUserId}`);
   }
 }

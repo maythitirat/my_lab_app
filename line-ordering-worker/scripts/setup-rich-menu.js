@@ -1,7 +1,13 @@
 /**
  * One-time script to create and activate a LINE Rich Menu.
- * Run: node scripts/setup-rich-menu.js
+ *
+ * Run (generates a designed image first, then uploads):
+ *   python3 scripts/gen-rich-menu.py && node scripts/setup-rich-menu.js
+ *
+ * Or just re-upload the menu structure without regenerating the image:
+ *   node scripts/setup-rich-menu.js
  */
+const fs   = require('fs');
 const zlib = require('zlib');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
@@ -15,15 +21,36 @@ if (!ACCESS_TOKEN) {
   process.exit(1);
 }
 
-// ── Minimal PNG generator (solid teal #27ACB2, no extra deps) ───────────────
-function createSolidPNG(width, height) {
-  const [r, g, b] = [0x27, 0xac, 0xb2];
+// ── Image loading ────────────────────────────────────────────────────────────
+// Use the designed PNG from gen-rich-menu.py if present; fallback to flat color
+const RICH_MENU_IMAGE = path.join(__dirname, 'rich-menu.png');
+
+function getRichMenuImageBuffer() {
+  if (fs.existsSync(RICH_MENU_IMAGE)) {
+    console.log(`🖼  Using designed image: ${RICH_MENU_IMAGE}`);
+    return fs.readFileSync(RICH_MENU_IMAGE);
+  }
+  console.log('🖼  No rich-menu.png found — generating flat-color placeholder');
+  return createFallbackPNG(2500, 843);
+}
+
+// ── Fallback PNG generator (flat 3-color split) ───────────────────────────────
+function createFallbackPNG(width, height) {
+  const third = Math.floor(width / 3);
+  // left: teal #27ACB2, middle: blue #1565C0, right: red #E53935
+  const colors = [
+    [0x27, 0xac, 0xb2],
+    [0x15, 0x65, 0xc0],
+    [0xe5, 0x39, 0x35],
+  ];
   const rowSize = 1 + width * 3;
   const raw = Buffer.alloc(height * rowSize);
   for (let y = 0; y < height; y++) {
     const off = y * rowSize;
     raw[off] = 0;
     for (let x = 0; x < width; x++) {
+      const seg = x < third ? 0 : x < third * 2 ? 1 : 2;
+      const [r, g, b] = colors[seg];
       raw[off + 1 + x * 3]     = r;
       raw[off + 1 + x * 3 + 1] = g;
       raw[off + 1 + x * 3 + 2] = b;
@@ -103,23 +130,32 @@ async function main() {
   }).catch(() => {});
 
   // 2. Create rich menu structure
+  const EDIT_LIFF_URL = `https://liff.line.me/${LIFF_ID}/edit-order`;
+  const CANCEL_LIFF_URL = `https://liff.line.me/${LIFF_ID}/cancel-order`;
   const { richMenuId } = await lineApi('/richmenu', {
     size: { width: 2500, height: 843 },
     selected: true,
     name: 'Main Menu',
-    chatBarText: '🛒 สั่งอาหาร',
+    chatBarText: '🍱 เมนู',
     areas: [
       {
-        bounds: { x: 0, y: 0, width: 2500, height: 843 },
-        action: { type: 'uri', label: 'สั่งอาหาร', uri: LIFF_URL },
+        bounds: { x: 0, y: 0, width: 833, height: 843 },
+        action: { type: 'uri', label: 'สั่งสินค้า', uri: LIFF_URL },
+      },
+      {
+        bounds: { x: 833, y: 0, width: 834, height: 843 },
+        action: { type: 'uri', label: 'แก้ไขออเดอร์', uri: EDIT_LIFF_URL },
+      },
+      {
+        bounds: { x: 1667, y: 0, width: 833, height: 843 },
+        action: { type: 'uri', label: 'ยกเลิกออเดอร์', uri: CANCEL_LIFF_URL },
       },
     ],
   });
   console.log(`✅ Rich menu created: ${richMenuId}`);
 
-  // 3. Upload placeholder image (solid teal)
-  console.log('🖼  Generating placeholder image (2500x843)...');
-  const png = createSolidPNG(2500, 843);
+  // 3. Upload image
+  const png = getRichMenuImageBuffer();
   await uploadRichMenuImage(richMenuId, png);
   console.log('✅ Image uploaded');
 

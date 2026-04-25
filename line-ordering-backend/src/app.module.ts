@@ -2,8 +2,14 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrdersModule } from './orders/orders.module';
+import { ProductsModule } from './products/products.module';
+import { CustomersModule } from './customers/customers.module';
 import { Order } from './orders/entities/order.entity';
 import { OrderItem } from './orders/entities/order-item.entity';
+import { Product } from './products/entities/product.entity';
+import { ProductImage } from './products/entities/product-image.entity';
+import { Customer } from './customers/entities/customer.entity';
+import { LineFollower } from './customers/entities/line-follower.entity';
 
 @Module({
   imports: [
@@ -33,7 +39,7 @@ import { OrderItem } from './orders/entities/order-item.entity';
         return {
           type: 'postgres' as const,
           ...base,
-          entities: [Order, OrderItem],
+          entities: [Order, OrderItem, Product, ProductImage, Customer, LineFollower],
           // Never auto-sync in production — use SQL migrations instead
           synchronize: !isProd,
           logging: !isProd,
@@ -48,6 +54,8 @@ import { OrderItem } from './orders/entities/order-item.entity';
       inject: [ConfigService],
     }),
     OrdersModule,
+    ProductsModule,
+    CustomersModule,
   ],
 })
 export class AppModule {}

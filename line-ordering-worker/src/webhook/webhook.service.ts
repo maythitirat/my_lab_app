@@ -40,14 +40,16 @@ export class WebhookService {
 
     const adminUserId = this.config.get<string>('LINE_ADMIN_USER_ID');
 
-    // Only process commands from the designated admin user
-    if (!senderUserId || senderUserId !== adminUserId) {
+    // ── Auto-save every sender's userId to line_followers ──────────────────
+    if (!senderUserId) return;
+    if (senderUserId !== adminUserId) {
+      // Save this user in the background — so admin can later link them to a customer
+      this.handleRegisterFollower(event, senderUserId).catch(() => {});
       this.logger.log(`Ignored message from non-admin ${senderUserId}: "${text}"`);
       return;
     }
 
     this.logger.log(`Admin command: "${text}" from ${senderUserId}`);
-
     const lower = text.toLowerCase().trim();
 
     // ── Report command ───────────────────────────────────────────────────────
@@ -72,6 +74,16 @@ export class WebhookService {
         this.logger.warn(`Could not parse date from report command: "${text}"`);
         // Optionally push a hint message back — skip for now
       }
+      return;
+    }
+
+    // ── Export CSV command ───────────────────────────────────────────────────
+    // "ส่งออก" / "export" / "ส่งออก 6/4" / "export 2026-04-06"
+    const exportMatch = lower.match(/^(?:ส่งออก|export)(?:\s+(.+))?$/);
+    if (lower === 'ส่งออก' || lower === 'export' || exportMatch) {
+      const dateArg = exportMatch?.[1]?.trim();
+      const labelDate = dateArg ? this.parseLabelDate(dateArg) : undefined;
+      await this.handleExportCommand(replyTo, labelDate ?? undefined);
       return;
     }
 
@@ -139,5 +151,63 @@ export class WebhookService {
     }
 
     await this.lineService.sendReportWithHint(replyTo, data);
+  }
+
+  /**
+   * Send a download link for the CSV report to the admin.
+   */
+  private async handleExportCommand(replyTo: string | undefined, labelDate?: string): Promise<void> {
+    if (!replyTo) return;
+
+    const backendUrl = this.config.get<string>('BACKEND_URL');
+    if (!backendUrl) {
+      this.logger.error('BACKEND_URL not configured');
+      return;
+    }
+
+    const csvUrl = labelDate
+      ? `${backendUrl}/orders/report/csv?date=${labelDate}`
+      : `${backendUrl}/orders/report/csv`;
+
+    await this.lineService.sendExportLink(replyTo, csvUrl, labelDate);
+  }
+
+  /**
+   * Called when a customer types "รับออเดอร์".
+   * Fetches their profile and saves userId + displayName to backend.
+   */
+  private async handleRegisterFollower(event: MessageEvent, lineUserId: string): Promise<void> {
+    const backendUrl = this.config.get<string>('BACKEND_URL');
+    if (!backendUrl) return;
+
+    // Fetch LINE profile for display name + picture
+    const token = this.config.get<string>('LINE_CHANNEL_ACCESS_TOKEN');
+    let displayName: string | null = null;
+    let pictureUrl: string | null = null;
+    try {
+      const res = await fetch(`https://api.line.me/v2/bot/profile/${lineUserId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const profile = await res.json() as { displayName: string; pictureUrl?: string };
+        displayName = profile.displayName ?? null;
+        pictureUrl = profile.pictureUrl ?? null;
+      }
+    } catch (err) {
+      this.logger.warn(`Could not fetch profile for ${lineUserId}: ${err}`);
+    }
+
+    // Save to backend DB
+    try {
+      await fetch(`${backendUrl}/customers/followers/upsert`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lineUserId, displayName, pictureUrl }),
+      });
+    } catch (err) {
+      this.logger.error(`Failed to save follower ${lineUserId}: ${err}`);
+    }
+
+    this.logger.log(`Registered follower: ${lineUserId} (${displayName})`);
   }
 }

@@ -3,9 +3,9 @@
  * Run: npm run setup:rich-menu
  *
  * Rich menu layout (compact 2500x843):
- * ┌─────────────────────────┐
- * │   🛒 สั่งอาหาร (full)   │  → opens LIFF
- * └─────────────────────────┘
+ * ┌──────────────┬──────────────────────┐
+ * │ 🛒 สั่งอาหาร │ 📦 รายการสั่งซื้อ   │
+ * └──────────────┴──────────────────────┘
  */
 import * as zlib from 'zlib';
 import * as dotenv from 'dotenv';
@@ -128,18 +128,22 @@ async function main() {
     size: { width: 2500, height: 843 },
     selected: true,
     name: 'Main Menu',
-    chatBarText: '🛒 สั่งอาหาร',
+    chatBarText: '🛒 เมนู',
     areas: [
       {
-        bounds: { x: 0, y: 0, width: 2500, height: 843 },
+        bounds: { x: 0, y: 0, width: 1250, height: 843 },
         action: { type: 'uri', label: 'สั่งอาหาร', uri: LIFF_URL },
+      },
+      {
+        bounds: { x: 1250, y: 0, width: 1250, height: 843 },
+        action: { type: 'uri', label: 'รายการสั่งซื้อ', uri: `${LIFF_URL}/my-orders` },
       },
     ],
   });
   console.log(`✅ Rich menu created: ${richMenuId}`);
 
   // 3. Upload placeholder image (solid teal — replace with your own design)
-  console.log('🖼  Generating placeholder image (2500x843 teal)...');
+  console.log('🖼  Generating placeholder image (2500x843, 2-panel teal)...');
   const png = createSolidPNG(2500, 843);
   await uploadRichMenuImage(richMenuId, png);
   console.log('✅ Image uploaded');

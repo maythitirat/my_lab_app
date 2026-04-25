@@ -75,6 +75,14 @@ export class Order {
   @Column({ name: 'payment_method', default: 'cod' })
   paymentMethod: string;
 
+  /** 'pending' | 'confirmed' | 'cancelled' */
+  @Column({ default: 'pending' })
+  status: string;
+
+  /** Shipping tracking number — set by admin after dispatch */
+  @Column({ name: 'tracking_number', nullable: true, default: null })
+  trackingNumber: string | null;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

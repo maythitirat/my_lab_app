@@ -16,6 +16,14 @@ provider:
   timeout: 10                # seconds
   logRetentionInDays: 7
 
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+          Resource: "arn:aws:s3:::${env:PRODUCT_IMAGES_BUCKET, 'placeholder'}/*"
+
   # Environment variables — these are encrypted at rest by Lambda
   # Set real values with:  sls deploy --param="DATABASE_URL=postgresql://..."
   # Or export them before running deploy.
@@ -25,6 +33,11 @@ provider:
     ALLOWED_ORIGIN: ${env:ALLOWED_ORIGIN}
     WORKER_URL: ${env:WORKER_URL, ''}
     WORKER_SECRET: ${env:WORKER_SECRET, ''}
+    LINE_ADMIN_USER_ID: ${env:LINE_ADMIN_USER_ID, ''}
+    SUPABASE_URL: ${env:SUPABASE_URL, ''}
+    SUPABASE_SERVICE_ROLE_KEY: ${env:SUPABASE_SERVICE_ROLE_KEY, ''}
+    PRODUCT_IMAGES_BUCKET: ${env:PRODUCT_IMAGES_BUCKET, ''}
+    AWS_REGION_NAME: ap-southeast-1
 
   # HTTP API (API Gateway v2) — cheaper than REST API and has built-in CORS
   httpApi:
@@ -34,6 +47,8 @@ provider:
       allowedMethods:
         - GET
         - POST
+        - PATCH
+        - DELETE
         - OPTIONS
       allowedHeaders:
         - Content-Type

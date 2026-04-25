@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { NotifyService } from './notify.service';
 import { NotifyOrderDto } from './notify-order.dto';
 import { NotifySlipDto } from './notify-slip.dto';
+import { NotifyCancelDto } from './notify-cancel.dto';
 
 @Controller('notify')
 export class NotifyController {
@@ -56,6 +57,37 @@ export class NotifyController {
   ) {
     this.checkSecret(secret);
     await this.notifyService.handleSlipNotification(dto);
+    return { ok: true };
+  }
+
+  /**
+   * Backend → Worker
+   * Called by line-ordering-backend after an order is cancelled.
+   */
+  @Post('cancel')
+  @HttpCode(200)
+  async notifyCancel(
+    @Headers('x-worker-secret') secret: string,
+    @Body() dto: NotifyCancelDto,
+  ) {
+    this.checkSecret(secret);
+    await this.notifyService.handleCancelNotification(dto);
+    return { ok: true };
+  }
+
+  /**
+   * Backend → Worker
+   * Send a plain-text push message to any LINE user.
+   * Used by the customers feature to notify customers by their lineUserId.
+   */
+  @Post('push-text')
+  @HttpCode(200)
+  async pushText(
+    @Headers('x-worker-secret') secret: string,
+    @Body() dto: { lineUserId: string; message: string },
+  ) {
+    this.checkSecret(secret);
+    await this.notifyService.handlePushText(dto.lineUserId, dto.message);
     return { ok: true };
   }
 }

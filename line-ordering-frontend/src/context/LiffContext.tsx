@@ -48,6 +48,8 @@ export function LiffProvider({ children }: { children: React.ReactNode }) {
         await liff.init({ liffId });
 
         if (!liff.isLoggedIn()) {
+          // Redirects browser to LINE login — do NOT set isReady here.
+          // The page will re-mount after login completes.
           liff.login({ redirectUri: window.location.href });
           return;
         }
@@ -58,9 +60,9 @@ export function LiffProvider({ children }: { children: React.ReactNode }) {
           displayName: userProfile.displayName,
           pictureUrl: userProfile.pictureUrl,
         });
+        setIsReady(true);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'LIFF initialization failed');
-      } finally {
         setIsReady(true);
       }
     };

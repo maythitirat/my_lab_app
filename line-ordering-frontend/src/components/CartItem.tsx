@@ -16,7 +16,7 @@ export default function CartItem({ item }: CartItemProps) {
       {/* Thumbnail */}
       <div className="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden">
         <Image
-          src={item.product.image}
+          src={item.product.imageUrl ?? item.product.image ?? 'https://picsum.photos/seed/default/400/400'}
           alt={item.product.name}
           fill
           className="object-cover"

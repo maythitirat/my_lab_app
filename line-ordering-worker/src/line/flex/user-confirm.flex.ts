@@ -1,6 +1,8 @@
 import { FlexMessage, FlexBubble } from '@line/bot-sdk';
 import { OrderPayload } from '../order-payload.interface';
 
+const LIFF_ID = process.env.LIFF_ID || '2009692421-qzL3USNe';
+
 /**
  * Builds a Flex Message sent to CUSTOMER confirming their order.
  */
@@ -138,13 +140,25 @@ export function buildUserConfirmFlex(order: OrderPayload): FlexMessage {
     footer: {
       type: 'box',
       layout: 'vertical',
+      spacing: 'sm',
       contents: [
+        {
+          type: 'button',
+          action: {
+            type: 'uri',
+            label: '📦 รายละเอียดการสั่งซื้อ',
+            uri: `https://liff.line.me/${LIFF_ID}/orders/${order.id}`,
+          },
+          style: 'primary',
+          color: '#1DB446',
+        },
         {
           type: 'text',
           text: 'ขอบคุณที่ใช้บริการ 🙏',
           size: 'xs',
           color: '#aaaaaa',
           align: 'center',
+          margin: 'sm',
         },
       ],
       paddingAll: '12px',
